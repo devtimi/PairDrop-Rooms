@@ -17,7 +17,7 @@
 // ═══════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════
-define('BASE_DIR', __DIR__ . '/rooms/');
+define('BASE_DIR', __DIR__ . '/rooms/'); // auto-creates if missing
 define('MAX_FILE_SIZE', 50 * 1024 * 1024);
 define('AUTO_DELETE_HOURS', 168); //168 hours = 1 week
 define('MIN_ROOM_LENGTH', 4);
@@ -78,7 +78,6 @@ if (session_status() === PHP_SESSION_NONE) {
 // Create base directory with protection
 if (!is_dir(BASE_DIR)) {
     @mkdir(BASE_DIR, 0755, true);
-    @file_put_contents(BASE_DIR . '.htaccess', "Options -Indexes\nDeny from all");
     @file_put_contents(BASE_DIR . 'index.html', '');
 }
 
