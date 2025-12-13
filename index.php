@@ -666,6 +666,10 @@ $inRoom = inRoom();
                             } catch(e) {
                                 alert('Invalid response from server');
                             }
+                        } else if (xhr.status === 413) {
+                        	alert('Upload failed: file too large. ' +
+                        		'Max <?= round(MAX_FILE_SIZE/1024/1024) ?>MB per file');
+                        	
                         } else {
                             alert('Upload failed (HTTP ' + xhr.status + ')');
                         }
