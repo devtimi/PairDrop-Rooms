@@ -75,6 +75,9 @@ foreach ($darkThemeVars as $name => $value) {
     $cssDarkVars .= "--$name:$value;";
 }
 
+// Check php.ini
+performSafetyCheck();
+
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -202,6 +205,45 @@ function requireRoom() {
         http_response_code(401);
         echo json_encode(['error' => 'Invalid room']);
         exit;
+    }
+}
+
+function performSafetyCheck() {
+	// Normalize php.ini setting
+	$iniUploadLimit = iniSizeToBytes(ini_get('upload_max_filesize'));
+
+	// Check it's big enough for our local setting
+	if ($iniUploadLimit < MAX_FILE_SIZE) {
+		$errMsg = 'PHP upload_max_filesize (' . ini_get('upload_max_filesize') .
+			') is smaller than the defined MAX_FILE_SIZE (' . 
+			round(MAX_FILE_SIZE/1024/1024) . 'MB)';
+			
+		// Logit
+		trigger_error($errMsg, E_USER_WARNING);
+		
+		// Fail to the user
+		header('Content-Type: application/json');
+        http_response_code(401);
+        echo json_encode(['error' => $errMsg]);
+        exit;
+        
+	}
+}
+
+function iniSizeToBytes(string $value): int {
+    $value = trim($value);
+    $unit  = strtolower(substr($value, -1));
+    $num   = (int)$value;
+
+    switch ($unit) {
+        case 'g':
+            return $num * 1024 * 1024 * 1024;
+        case 'm':
+            return $num * 1024 * 1024;
+        case 'k':
+            return $num * 1024;
+        default:
+            return (int)$value;
     }
 }
 
