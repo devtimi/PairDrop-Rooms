@@ -22,6 +22,7 @@ define('MAX_FILE_SIZE', 50 * 1024 * 1024);
 define('AUTO_DELETE_HOURS', 168); //168 hours = 1 week
 define('MIN_ROOM_LENGTH', 4);
 define('MAX_ROOM_LENGTH', 32);
+define('ALLOW_CREATE_ROOMS', true);
 // ═══════════════════════════════════════════════════════════
 
 // Error reporting for debugging (disable in production)
@@ -117,17 +118,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['join_room'])) {
         exit;
     }
     
-    // Save to session
-    $_SESSION['pairdrop_room'] = $newRoom;
-    
-    // Create room directory
+    // Get room directory
     $newRoomDir = BASE_DIR . $newRoom . '/';
+    
+    // Check if directory exists
     if (!is_dir($newRoomDir)) {
+    	if (!ALLOW_CREATE_ROOMS) {
+    		// Creation not allowed here
+    		echo json_encode(['error' => 'Room code invalid.']);
+        	exit;
+    	}
+    	
+    	// Creation allowed, but room is empty
         @mkdir($newRoomDir, 0755, true);
+        
     }
+    
+    // Save to session only after room is validated/created
+    $_SESSION['pairdrop_room'] = $newRoom;
     
     echo json_encode(['success' => true, 'room' => $newRoom]);
     exit;
+    
 }
 
 // Set room directory if valid room
@@ -136,7 +148,13 @@ if ($room) {
     $_SESSION['pairdrop_room'] = $room;
     $roomDir = BASE_DIR . $room . '/';
     if (!is_dir($roomDir)) {
-        @mkdir($roomDir, 0755, true);
+        if (ALLOW_CREATE_ROOMS) {
+            @mkdir($roomDir, 0755, true);
+        } else {
+            // Room doesn't exist and creation not allowed
+            $room = null;
+            $roomDir = null;
+        }
     }
 }
 
@@ -147,7 +165,7 @@ if (AUTO_DELETE_HOURS > 0 && is_dir(BASE_DIR)) {
         foreach (glob($dir . '*') as $f) {
             if (is_file($f) && filemtime($f) < $expiry) @unlink($f);
         }
-        if (is_dir($dir) && count(glob($dir . '*')) === 0) @rmdir($dir);
+        if (ALLOW_CREATE_ROOMS && is_dir($dir) && count(glob($dir . '*')) === 0) @rmdir($dir);
     }
 }
 
@@ -458,7 +476,10 @@ $inRoom = inRoom();
                 <button type="submit" class="btn-primary" id="joinBtn">Enter Room</button>
             </form>
             <p class="error" id="joinError"></p>
-            <p class="hint">Create any code you like, or enter an existing one.<br>Only people with the code can access the room.</p>
+            <p class="hint">
+				<?php if (ALLOW_CREATE_ROOMS) echo "Create any code you like, or enter an existing one.<br>"; ?>
+				Only people with the code can access the room.
+            </p>
         </div>
     </div>
     <script>
