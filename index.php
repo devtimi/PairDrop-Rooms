@@ -751,7 +751,7 @@ $inRoom = inRoom();
 
 
 <div class="footer-terms">
-    Designed by <a href="https://www.pairdrop.org/">PairDrop.org</a>. By using this service, you agree to the <a href="#" id="openTerms">Terms of Service</a>.
+    Powered by <a href="https://github.com/devtimi/PairDrop-Rooms" target="_blank">PairDrop Rooms</a>. By using this service, you agree to the <a href="#" id="openTerms">Terms of Service</a>.
 </div>
 
 <div id="termsModal" class="modal">
