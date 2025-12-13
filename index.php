@@ -163,6 +163,8 @@ if ($room) {
 }
 
 // Auto-delete old files
+$autoDeleteTime = AUTO_DELETE_HOURS;
+$autoDeleteUnit = "hours";
 if (AUTO_DELETE_HOURS > 0 && is_dir(BASE_DIR)) {
     $expiry = time() - (AUTO_DELETE_HOURS * 3600);
     foreach (glob(BASE_DIR . '*/') as $dir) {
@@ -171,6 +173,21 @@ if (AUTO_DELETE_HOURS > 0 && is_dir(BASE_DIR)) {
         }
         if (ALLOW_CREATE_ROOMS && is_dir($dir) && count(glob($dir . '*')) === 0) @rmdir($dir);
     }
+    
+    // Convert time unit for display
+	if (AUTO_DELETE_HOURS >= 8760) { // 24 * 365 = 1 year
+		$autoDeleteTime = AUTO_DELETE_HOURS / 8760;
+		$autoDeleteUnit = ($autoDeleteTime == 1) ? "year" : "years";
+	} elseif (AUTO_DELETE_HOURS >= 720) { // 24 * 30 = 1 month (approx)
+		$autoDeleteTime = AUTO_DELETE_HOURS / 720;
+		$autoDeleteUnit = ($autoDeleteTime == 1) ? "month" : "months";
+	} elseif (AUTO_DELETE_HOURS >= 168) { // 24 * 7 = 1 week
+		$autoDeleteTime = AUTO_DELETE_HOURS / 168;
+		$autoDeleteUnit = ($autoDeleteTime == 1) ? "week" : "weeks";
+	} elseif (AUTO_DELETE_HOURS >= 24) { // 1 day
+		$autoDeleteTime = AUTO_DELETE_HOURS / 24;
+		$autoDeleteUnit = ($autoDeleteTime == 1) ? "day" : "days";
+	}
 }
 
 // Helper functions
@@ -580,7 +597,7 @@ $inRoom = inRoom();
         
         <?php if (AUTO_DELETE_HOURS > 0): ?>
 			<div class="info-bar">
-				Files are automatically deleted after <?= AUTO_DELETE_HOURS ?> hours
+				Files are automatically deleted after <?= $autoDeleteTime . " " . $autoDeleteUnit ?>
 			</div>
         <?php endif; ?>
     </div>
