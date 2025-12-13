@@ -18,11 +18,15 @@
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════
 define('BASE_DIR', __DIR__ . '/rooms/'); // auto-creates if missing
-define('MAX_FILE_SIZE', 50 * 1024 * 1024);
-define('AUTO_DELETE_HOURS', 168); //168 hours = 1 week
+define('MAX_FILE_SIZE', 50 * 1024 * 1024); // defined in bytes
+
+// Set to 0 to disable auto-delete function
+// 168 hours = 1 week
+define('AUTO_DELETE_HOURS', 168);
+
+define('ALLOW_CREATE_ROOMS', true);
 define('MIN_ROOM_LENGTH', 4);
 define('MAX_ROOM_LENGTH', 32);
-define('ALLOW_CREATE_ROOMS', true);
 // ═══════════════════════════════════════════════════════════
 
 // Error reporting for debugging (disable in production)
@@ -574,9 +578,11 @@ $inRoom = inRoom();
         </div>
         <ul class="file-list" id="fileList"><li class="empty"><div class="empty-icon">📂</div>Loading...</li></ul>
         
-        <div class="info-bar">
-            Files are automatically deleted after <?= AUTO_DELETE_HOURS ?> hours
-        </div>
+        <?php if (AUTO_DELETE_HOURS > 0): ?>
+			<div class="info-bar">
+				Files are automatically deleted after <?= AUTO_DELETE_HOURS ?> hours
+			</div>
+        <?php endif; ?>
     </div>
 
     <script>
