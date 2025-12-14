@@ -763,7 +763,14 @@ $inRoom = inRoom();
                 $('fileCount').textContent = files.length ? files.length + ' file' + (files.length > 1 ? 's' : '') : '';
                 
                 if (!files.length) {
-                    fileList.innerHTML = '<li class="empty"><div class="empty-icon">📂</div>No files yet. Drop some files to share!</li>';
+                	<?php
+                	if ($errMsg === null) {
+                		echo "fileList.innerHTML = '<li class=\"empty\"><div class=\"empty-icon\">📂</div>No files yet. Drop some files to share!</li>';";
+                	} else {
+                		// There's an error message, so don't show the folder icon to avoid confusion as a drop-zone
+                		echo "fileList.innerHTML = '<li class=\"empty\">No files yet.</li>';";
+                	}
+                	?>
                     return;
                 }
                 
